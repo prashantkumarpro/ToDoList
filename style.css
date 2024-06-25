@@ -41,6 +41,7 @@ body {
 
 input[type="text"] {
     max-width: 320px;
+    width: 100%;
     padding: 10px 20px;
     outline: none;
     color: black;
@@ -97,3 +98,5 @@ button {
     outline: none;
     margin-left: 5px;
 }
+
+
