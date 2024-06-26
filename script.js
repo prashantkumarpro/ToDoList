@@ -1,88 +1,49 @@
 const taskContainer = document.querySelector('.task_container');
 const inputElement = document.querySelector('input[type="text"]');
 const addTaskButton = document.querySelector('#addTask')
-let inputElementValue, taskDiv, taskTextElement, editButton, deleteButton;
 
-// Retrieve existing movies or initialize an empty array
+
+// Retrieve existing task or initialize an empty array
 let taskArray = JSON.parse(localStorage.getItem("items")) || [];
 
-if (taskArray) {
-    taskArray.forEach((item, index) => {
-        displayTask(taskText = taskArray[index]);
-
-        //  Function to edit task
-        editButton.addEventListener('click', function () {
-            if (this.classList.contains('edit')) {
-                inputElement.value = this.parentElement.parentElement.children[0].textContent;
-                this.classList.remove('edit');
-                this.classList.add('update');
-                this.textContent = 'Update';
-                inputElement.focus()
-                disabled(deleteButton);
-                disabled(addTaskButton);
-            } else if (this.classList.contains('update')) {
-                let updateElem = this.parentElement.parentElement.children[0];
-
-                let index = taskArray.indexOf(updateElem.textContent);
-                taskArray[index] = inputElementValue;
-                let updatedText = taskArray[index]
-
-                // update the text
-                updateElem.textContent = updatedText;
-
-                // Save the updated text inside the taskArray
-                localStorage.setItem('items', JSON.stringify(taskArray))
-
-                this.classList.remove('update')
-                this.classList.add('edit');
-                this.textContent = 'Edit';
-
-
-                inputElement.value = '';
-                enabled(deleteButton);
-                enabled(addTaskButton);
-            }
-        })
-        // Function to delete task
-        deleteButton.addEventListener('click', function () {
-
-            this.parentElement.parentElement.remove();
-
-            let itemText = this.parentElement.parentElement.children[0].textContent
-
-            let deltedTask = taskArray.filter((task) => task !== itemText)
-
-            taskArray = deltedTask
-
-            localStorage.setItem('items', JSON.stringify(taskArray))
-
-        })
-    })
-
-
-}
+taskArray.forEach(taskText => displayTheTask(taskText));
 
 // event listener to get typed input value 
 inputElement.addEventListener('input', function () {
-    inputElementValue = this.value;
-    enabled(addTaskButton);
+    enabled(addTaskButton)
+})
 
-    if (editButton) {
-        if (editButton.classList.contains('update')) {
-            disabled(addTaskButton);
-            return;
-        }
+// Function to add the task 
+function addTheTask() {
+
+    if (inputElement.value.trim() === '') {
+        alert('enter the task')
+        return
+    } else {
+        let taskText = inputElement.value.trim()
+        // Display the task 
+        displayTheTask(taskText)
+
+        // Add new task to the taskArray
+        taskArray.push(taskText);
+
+        // Save the updated taskArray
+        localStorage.setItem("items", JSON.stringify(taskArray));
+
+        // Clear input field
+        inputElement.value = ''
     }
-});
+}
 
-
-function displayTask(taskText = inputElementValue) {
-    taskDiv = document.createElement('div');
+// Function to display the task
+function displayTheTask(taskText) {
+    // create the task div
+    let taskDiv = document.createElement('div');
     taskDiv.classList.add('task_box');
 
     // Create task text element 
-    taskTextElement = document.createElement('p');
-    taskTextElement.classList.add('task');
+    let taskTextElement = document.createElement('p');
+    taskTextElement.classList.add('task-text');
     taskTextElement.textContent = taskText;
 
     // Create icon div
@@ -90,12 +51,12 @@ function displayTask(taskText = inputElementValue) {
     iconsDiv.classList.add('icons');
 
     // Create  edit button 
-    editButton = document.createElement('button');
+    let editButton = document.createElement('button');
     editButton.classList.add('edit');
     editButton.textContent = 'Edit'
 
     // Create  delete button 
-    deleteButton = document.createElement('button');
+    let deleteButton = document.createElement('button');
     deleteButton.classList.add('delete');
     deleteButton.textContent = 'Delete'
 
@@ -104,55 +65,63 @@ function displayTask(taskText = inputElementValue) {
     taskDiv.append(iconsDiv)
     iconsDiv.append(editButton)
     iconsDiv.append(deleteButton)
-    taskContainer.append(taskDiv)
-}
+    taskContainer.append(taskDiv);
 
+    // when doubble click on task this will show as the task is completed
+    taskDiv.addEventListener('dblclick', function () {
+        taskTextElement.classList.toggle('task-completed');
+    })
 
-// Function to the delete task
-function handelDeleteBtn() {
+    // Function to the edit task
+    function editTheTask() {
 
-    taskDiv.remove();
-    let taskText = this.parentElement.previousSibling.textContent;
+        if (editButton.classList.contains('edit')) {
+            inputElement.value = editButton.parentElement.parentElement.children[0].textContent;
+            editButton.classList.remove('edit');
+            editButton.classList.add('update');
+            editButton.textContent = 'Update';
+            inputElement.focus()
+            disabled(deleteButton);
+            disabled(addTaskButton);
+        } else if (editButton.classList.contains('update')) {
+            let updateElem = editButton.parentElement.parentElement.children[0];
 
-    // remove the task from taskArray
-    let deletedTask = taskArray.filter(item => item !== taskText)
-    taskArray = deletedTask;
+            let index = taskArray.indexOf(updateElem.textContent);
+            taskArray[index] = inputElement.value.trim();
+            let updatedText = taskArray[index]
 
-    // save the updated task
-    localStorage.setItem('items', JSON.stringify(taskArray))
-}
+            // update the text
+            updateElem.textContent = updatedText;
 
-// Function to handel edit and update button 
-function handelEditBtn() {
+            // Save the updated text inside the taskArray
+            localStorage.setItem('items', JSON.stringify(taskArray))
+            editButton.classList.remove('update')
+            editButton.classList.add('edit');
+            editButton.textContent = 'Edit';
 
-    if (this.classList.contains('edit')) {
-        inputElement.value = this.parentElement.parentElement.children[0].textContent;
-        this.classList.remove('edit');
-        this.classList.add('update');
-        this.textContent = 'Update';
-        inputElement.focus()
-        disabled(deleteButton);
-        disabled(addTaskButton);
-    } else {
-        let updateElem = this.parentElement.parentElement.children[0];
-
-        let index = taskArray.indexOf(updateElem.textContent);
-        taskArray[index] = inputElementValue;
-        let updatedText = taskArray[index]
-
-        // update the text
-        updateElem.textContent = updatedText;
-
-        // Save the updated text inside the taskArray
-        localStorage.setItem('items', JSON.stringify(taskArray))
-        this.classList.remove('update')
-        this.classList.add('edit');
-        this.textContent = 'Edit';
-
-        inputElement.value = '';
-        enabled(deleteButton);
-        enabled(addTaskButton);
+            inputElement.value = '';
+            enabled(deleteButton);
+            enabled(addTaskButton);
+        }
     }
+
+    // Function to the delet task
+    function deletTheTask() {
+        this.parentElement.parentElement.remove()
+
+        let taskText = this.parentElement.previousSibling.textContent
+
+        // remove the task from taskArray
+        let deletedTask = taskArray.filter(item => item !== taskText)
+        taskArray = deletedTask;
+
+        // save the updated task
+        localStorage.setItem('items', JSON.stringify(taskArray))
+    }
+
+    // Event listener to edit and delete the task
+    deleteButton.addEventListener('click', deletTheTask);
+    editButton.addEventListener('click', editTheTask);
 
 }
 
@@ -166,27 +135,5 @@ function enabled(elem) {
     elem.disabled = false;
 }
 
-// Function to add the task 
-function addTheTask() {
-
-    if (inputElement.value === '') {
-        alert('enter the task')
-        return
-    } else {
-        displayTask();
-
-        // Add new task to the taskArray
-        taskArray.push(inputElementValue);
-
-        // Save the updated taskArray
-        localStorage.setItem("items", JSON.stringify(taskArray));
-
-        editButton.addEventListener('click', handelEditBtn)
-        deleteButton.addEventListener('click', handelDeleteBtn)
-        // Clear input field
-        inputElement.value = ''
-    }
-}
-
-// Event listener to add task
-addTaskButton.addEventListener('click', addTheTask);
+//  Event listener on add button  on click
+addTaskButton.addEventListener('click', addTheTask)
