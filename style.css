@@ -26,6 +26,7 @@ header {
 }
 
 .heading {
+    width: 100%;
     text-align: center;
     margin-bottom: 20px;
 }
@@ -142,8 +143,20 @@ button {
 }
 
 @media (max-width:600px) {
-    .container {
-        overflow: hidden;
-        margin: 0;
+     
+    .input_box {
+        width: 100%;
+        gap: 10px;
     }
+
+    input[type="text"] {
+        width: 100%;
+        max-width: 360px;
+    }
+    .task_box {
+        max-width: 335px;
+        width: 100%;
+    }
+    
+    
 }
