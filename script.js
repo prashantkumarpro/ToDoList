@@ -6,7 +6,7 @@ const addTaskButton = document.querySelector('#addTask')
 // Retrieve existing task or initialize an empty array
 let taskArray = JSON.parse(localStorage.getItem("items")) || [];
 
-taskArray.forEach(taskText => displayTheTask(taskText));
+taskArray.forEach(item => displayTheTask(item));
 
 // event listener to get typed input value 
 inputElement.addEventListener('input', function () {
@@ -21,11 +21,12 @@ function addTheTask() {
         return
     } else {
         let taskText = inputElement.value.trim()
+        let cardObj = { text: taskText, completedTask: '' }
         // Display the task 
-        displayTheTask(taskText)
+        displayTheTask(cardObj)
 
         // Add new task to the taskArray
-        taskArray.push(taskText);
+        taskArray.push(cardObj);
 
         // Save the updated taskArray
         localStorage.setItem("items", JSON.stringify(taskArray));
@@ -36,7 +37,7 @@ function addTheTask() {
 }
 
 // Function to display the task
-function displayTheTask(taskText) {
+function displayTheTask(cardObj) {
     // create the task div
     let taskDiv = document.createElement('div');
     taskDiv.classList.add('task_box');
@@ -44,7 +45,9 @@ function displayTheTask(taskText) {
     // Create task text element 
     let taskTextElement = document.createElement('p');
     taskTextElement.classList.add('task-text');
-    taskTextElement.textContent = taskText;
+    taskTextElement.textContent = cardObj.text;
+    if (cardObj.completedTask === 'task-completed') taskTextElement.classList.add(cardObj.completedTask);
+
 
     // Create icon div
     let iconsDiv = document.createElement('div');
@@ -69,7 +72,16 @@ function displayTheTask(taskText) {
 
     // when doubble click on task this will show as the task is completed
     taskDiv.addEventListener('dblclick', function () {
-        taskTextElement.classList.toggle('task-completed');
+        const taskTextElement = this.children[0];
+        if (!taskTextElement.classList.contains('task-completed')) {
+            taskTextElement.classList.add('task-completed')
+            cardObj.completedTask = 'task-completed'
+            localStorage.setItem('items', JSON.stringify(taskArray))
+        } else {
+            taskTextElement.classList.remove('task-completed')
+            cardObj.completedTask = ''
+            localStorage.setItem('items', JSON.stringify(taskArray))
+        }
     })
 
     // Function to the edit task
@@ -85,13 +97,13 @@ function displayTheTask(taskText) {
             disabled(addTaskButton);
         } else if (editButton.classList.contains('update')) {
             let updateElem = editButton.parentElement.parentElement.children[0];
+            taskArray.forEach(task => {
+                if (task.text === updateElem.textContent) {
+                    task.text = inputElement.value;
+                    updateElem.textContent = task.text;
+                }
+            })
 
-            let index = taskArray.indexOf(updateElem.textContent);
-            taskArray[index] = inputElement.value.trim();
-            let updatedText = taskArray[index]
-
-            // update the text
-            updateElem.textContent = updatedText;
 
             // Save the updated text inside the taskArray
             localStorage.setItem('items', JSON.stringify(taskArray))
@@ -101,7 +113,7 @@ function displayTheTask(taskText) {
 
             inputElement.value = '';
             enabled(deleteButton);
-            enabled(addTaskButton);
+            disabled(addTaskButton);
         }
     }
 
@@ -112,7 +124,7 @@ function displayTheTask(taskText) {
         let taskText = this.parentElement.previousSibling.textContent
 
         // remove the task from taskArray
-        let deletedTask = taskArray.filter(item => item !== taskText)
+        let deletedTask = taskArray.filter(item => item.text !== taskText)
         taskArray = deletedTask;
 
         // save the updated task
